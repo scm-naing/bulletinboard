@@ -1,0 +1,8 @@
+# my.cnf
+[client]
+database = test
+user = root
+password = root
+host = localhost
+port = 3306
+default-character-set = utf8

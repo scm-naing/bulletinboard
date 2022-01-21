@@ -1,0 +1,38 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/csv-upload.css' %}">
+<h4 class="header">Upload CSV file</h4>
+{% if err_message %}
+<div class="alert alert-danger" role="alert">
+  <div id="primary-notification-div">
+    {{ err_message }}
+  </div>
+</div>
+{% endif %}
+<form class="form-horizontal" action="{% url 'csv-import' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="upload-form">
+    <div class="form-group">
+      <div class="col-sm-3">
+        {{form.csv_file.label}}
+      </div>
+      <div class="col-sm-9">
+        {{form.csv_file}}
+        {% if form.errors.csv_file %}
+        <label for="" class="error text text-danger">{{form.errors.csv_file|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group form-btn">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-success btn-upload">Upload</button>
+        <input class="btn btn-default" type="button" value="Clear" id="resetBtn" onClick="this.form.reset()" />
+      </div>
+    </div>
+  </div>
+  </div>
+</form>
+{% endblock %}

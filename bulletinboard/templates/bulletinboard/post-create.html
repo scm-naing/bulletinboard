@@ -1,0 +1,93 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/detail.css' %}">
+
+{% if messages %}
+{% for message in messages %}
+{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+<div class="alert alert-success" role="alert">
+  <div id="primary-notification-div">
+    {{ message }}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<h4 class="header">Post Create</h4>
+{% if operation == 'edit' %}
+<form class="form-horizontal" action="{% url 'post-update' id %}" method="post">
+  {% else %}
+  <form class="form-horizontal" action="{% url 'post-create' %}" method="post">
+    {% endif %}
+    {% csrf_token %}
+
+    {% if form.errors %}
+    {% for error in form.non_field_errors %}
+    <div class="alert alert-danger">
+      <strong>{{ error|escape }}</strong>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <div class="detail-form">
+      <div class="form-group">
+        <div class="col-sm-3">
+          {{form.title.label}}
+        </div>
+        <div class="col-sm-9">
+          {{form.title}}
+          {% if form.errors.title %}
+          <label for="" class="error text text-danger">{{form.errors.title|striptags}}</label>
+          {% endif %}
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="col-sm-3">
+          {{form.description.label}}
+        </div>
+        <div class="col-sm-9">
+          {{form.description}}
+          {% if form.errors.description %}
+          <label for="" class="error text text-danger">{{form.errors.description|striptags}}</label>
+          {% endif %}
+        </div>
+      </div>
+      {% if operation == 'edit' %}
+      <div class="form-group">
+        <div class="col-sm-3">
+          <label class="control-label col-sm-2" for="post-status">Status:</label>
+        </div>
+        <div class="col-sm-9">
+          <label class="switch">
+            <input type="checkbox" name="post_status" id="post-status" value={{status}}
+              {%if status == '1'%} checked {%endif%}
+              {% if post_confirm %} readOnly {% endif %} />
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+      {% endif %}
+      <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-10">
+          <button type="submit" name="_save" class="btn btn-success">
+            {% if operation == 'edit' %}
+            Edit
+            {% else %}
+            Create
+            {% endif %}
+          </button>
+          {% if post_confirm %}
+          <button type="submit" name="_cancel" class="btn btn-default">
+            Cancel
+          </button>
+          {% else %}
+          <input class="btn btn-default" type="button" value="Clear" id="resetBtn" onClick="this.form.reset()" />
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </form>
+  {% endblock %}

@@ -1,0 +1,164 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/detail.css' %}">
+
+{% if messages %}
+{% for message in messages %}
+{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+<div class="alert alert-success" role="alert">
+  <div id="primary-notification-div">
+    {{ message }}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<h4 class="header">Register</h4>
+<form class="form-horizontal" action="{% url 'user-create' %}" method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+
+  {% if form.errors %}
+  {% for error in form.non_field_errors %}
+  <div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="detail-form">
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.name.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.name}}
+        {% if form.errors.name %}
+        <label for="" class="error text text-danger">{{form.errors.name|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.email.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.email}}
+        {% if form.errors.email %}
+        <label for="" class="error text text-danger">{{form.errors.email|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.password.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.password}}
+        {% if form.errors.password %}
+        <label for="" class="error text text-danger">{{form.errors.password|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.passwordConfirm.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.passwordConfirm}}
+        {% if form.errors.passwordConfirm %}
+        <label for="" class="error text text-danger">{{form.errors.passwordConfirm|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.type.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.type}}
+        {% if form.errors.type %}
+        <label for="" class="error text text-danger">{{form.errors.type|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.phone.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.phone}}
+        {% if form.errors.phone %}
+        <label for="" class="error text text-danger">{{form.errors.phone|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.dob.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.dob}}
+        {% if form.errors.dob %}
+        <label for="" class="error text text-danger">{{form.errors.dob|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.address.label}}
+      </div>
+      <div class="col-sm-8">
+        {{form.address}}
+        {% if form.errors.address %}
+        <label for="" class="error text text-danger">{{form.errors.address|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-4">
+        {{form.profile.label}}
+      </div>
+      {% if profile and save_confirm_page %}
+      <div class="col-sm-8">
+        {% comment %} <img src="{% static profile %}" alt="User profile" class="profile-img"> {% endcomment %}
+        <img src={% static profile %} alt="User profile" class="profile-img">
+      </div>
+      {% else %}
+      <div class="col-sm-8">
+        {{form.profile}}
+        {% if form.errors.profile %}
+        <label for="" class="error text text-danger">{{form.errors.profile|striptags}}</label>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" name="_save" class="btn btn-success">
+          Create
+        </button>
+        {% if save_confirm_page %}
+        <button type="submit" name="_cancel" class="btn btn-default">
+          Cancel
+        </button>
+        {% else %}
+        <input class="btn btn-default" type="button" value="Clear" id="resetBtn" onClick="this.form.reset()" />
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</form>
+{% endblock %}

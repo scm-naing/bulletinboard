@@ -1,0 +1,79 @@
+{% block detail %}
+{% load static %}
+<link href="{% static 'css/detail-dialog.css' %}" rel="stylesheet">
+<div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel"
+  aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="detailModalLabel">User Detail</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="container-fluid text-break">
+          <div class="row">
+            <div class="col-sm-4" id="user-detail-profile"></div>
+            <div class="col-sm-8">
+              <div class="row data-row">
+                <div class="col-sm-5">Name</div>
+                <div class="col-sm-7" id="user-name"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Type</div>
+                <div class="col-sm-7" id="user-type"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Email</div>
+                <div class="col-sm-7" id="user-email"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Phone</div>
+                <div class="col-sm-7" id="user-phone"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Date of Birth</div>
+                <div class="col-sm-7" id="user-dob"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Address</div>
+                <div class="col-sm-7" id="user-address"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Created Date</div>
+                <div class="col-sm-7" id="created_date"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Created User</div>
+                <div class="col-sm-7" id="created_user"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Updated Date</div>
+                <div class="col-sm-7" id="updated_date"></div>
+              </div>
+
+              <div class="row data-row">
+                <div class="col-sm-5">Updated User</div>
+                <div class="col-sm-7" id="updated_user"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

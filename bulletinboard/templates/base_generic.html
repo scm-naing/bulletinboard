@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  {% block title %}<title>Bulletin Board</title>{% endblock %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <!-- Add additional CSS in static file -->
+  {% load static %}
+  <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+
+<body>
+  <nav class="navbar navbar-default">
+    <div class="container-fluid">
+      <div class="navbar-header">
+        <a class="navbar-brand" href={% url 'index' %}>Bulletin_Board</a>
+      </div>
+      <ul class="nav navbar-nav">
+        <li><a href={% url 'user-list' %}>Users</a></li>
+        <li><a href={% url 'index' %}>Posts</a></li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href={% url 'user-create' %}>Create User</a></li>
+        {% if user.is_authenticated %}
+        <li class="dropdown">
+          <a class="dropdown-toggle " data-toggle="dropdown" href="#">
+            <span>{{ user.get_username }}<span>
+                <span class="glyphicon glyphicon-user"><span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu">
+            <li><a href="{% url 'user-profile' %}">Profile</a></li>
+            <li><a href="{% url 'logout'%}?next={{request.path}}">Logout</a></li>
+          </ul>
+        </li>
+        {% else %}
+        <li><a href="{% url 'login'%}?next={{request.path}}">Login</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </nav>
+
+  <div class="container post-body">
+    {% block content %}{% endblock %}
+  </div>
+
+  <footer class="footer">
+    <div class="clearFix">
+      <p class="float-left footer-link">
+        <a class=".text-success" href="http://seattleconsultingmyanmar.com/" target="blank">Seattle Consulting
+          Myanmar</a>
+      </p>
+      <p class=".text-success float-right footer-link">Copyright © Seattle Consulting
+        Myanmar Co., Ltd. All rights reserved.</p>
+    </div>
+  </footer>
+</body>
+
+</html>

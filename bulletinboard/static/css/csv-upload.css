@@ -1,0 +1,11 @@
+.upload-form {
+  width: 60%;
+  display: block;
+  margin: 50px auto;
+}
+.form-btn {
+  margin-top: 30px;
+}
+.btn-upload {
+  margin-right: 30px;
+}

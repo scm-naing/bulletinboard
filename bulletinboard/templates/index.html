@@ -1,0 +1,80 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/list.css' %}">
+<script src="{% static 'js/detail.js' %}"></script>
+
+<div class="list-container">
+  <h4 class="header">Post List</h4>
+  <form class="form-inline form" action="{% url 'index' %}" method="post">
+    {% csrf_token %}
+    <div class="form-group form-field">
+      {{form.keyword.label}}
+      {{form.keyword}}
+    </div>
+    <button type="submit" name="_search" class="btn btn-success form-field">Search</button>
+    <button type="submit" name="_create" class="btn btn-success form-field">Create</button>
+    <a href={% url 'csv-import' %}><button type="button" class="btn btn-success form-field">Upload</button></a>
+    <button type="button" class="btn btn-success form-field" onclick="downloadCSV()">Download</button>
+  </form>
+
+  {% if page_obj %}
+  <table class="table table-hover list-table">
+    <thead class="table-header">
+      <tr>
+        <th>Post title</th>
+        <th>Post Description</th>
+        <th>Posted User</th>
+        <th>Posted Date</th>
+        <th>Operation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for post in page_obj %}
+      <tr>
+        <td>
+          <a href="#" data-toggle="modal" data-target="#detailPostModal"
+            onclick="goToPostDetail('{{ post.id }}')">{{ post.title }}</a>
+        </td>
+        <td>
+          {{post.description|slice:":30"}}
+          {% if post.description|length > 30 %}
+          ...
+          {% endif %}
+        </td>
+        <td>{{post.user.name}}</td>
+        <td>{{post.updated_at|date:"d/m/Y"}}</td>
+        <td>
+          <a href="{% url 'post-update' post.id %}"><button type="button" class="btn btn-primary">Edit</button></a>
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#detailDelModal"
+            onclick="goToPostDelete('{{ post.id }}')">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No posts are available.</p>
+  {% endif %}
+  <div class="pagination float-right">
+    <span class="step-links">
+      {% if page_obj.has_previous %}
+      <a href="?page=1">&laquo; first</a>
+      <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+      {% endif %}
+
+      <span class="current">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+      </span>
+
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">next</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+      {% endif %}
+    </span>
+  </div>
+  {% block detail %}{% include 'bulletinboard/post-detail.html' %}{% endblock %}
+  {% block delete %}{% include 'bulletinboard/post-delete.html' %}{% endblock %}
+</div>
+{% endblock %}

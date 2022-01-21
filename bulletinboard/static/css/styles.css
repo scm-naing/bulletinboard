@@ -1,0 +1,50 @@
+.clearFix:after {
+  content: "";
+  display: block;
+  clear: both;
+  height: 0;
+  font-size: 0;
+  visibility: hidden;
+}
+.float-left {
+  float: left;
+}
+.float-right {
+  float: right;
+}
+.hide {
+  display: none;
+  height: 0;
+  visibility: hidden;
+}
+.post-body {
+  padding-bottom: 50px;
+}
+.profile-img {
+  max-width: 150px;
+  max-height: 150px;
+}
+.footer {
+  width: 100%;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  background-color: #f8f8f8;
+  border-color: #e7e7e7;
+  border: 1px solid transparent;
+}
+.footer-link {
+  margin: 30px;
+}
+.header {
+  margin: 0 !important;
+  padding: 20px;
+  color: #ffffff;
+  background: #4cae4c;
+}
+.text-break {
+  word-break: break-all;
+}
+.profile-icon {
+  font-size: 50px;
+}

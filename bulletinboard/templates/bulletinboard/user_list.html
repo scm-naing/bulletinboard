@@ -1,0 +1,98 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+{% load static %}
+<link rel="stylesheet" href="{% static 'css/list.css' %}">
+<script src="{% static 'js/detail.js' %}"></script>
+
+<div class="list-container">
+  <h4 class="header">Users List</h4>
+  <form class="form-inline form" action="{% url 'user-list' %}" method="post">
+    {% csrf_token %}
+    <div class="form-group field">
+      {{form.name.label}}
+      {{form.name}}
+    </div>
+    <div class="form-group field">
+      {{form.email.label}}
+      {{form.email}}
+    </div>
+    <div class="form-group field">
+      {{form.from_date.label}}
+      {{form.from_date}}
+    </div>
+    <div class="form-group field">
+      {{form.to_date.label}}
+      {{form.to_date}}
+    </div>
+    <div class="form-group field">
+      <label for="byn"></label>
+      <button type="submit" class="btn btn-success form-field">Search</button>
+    </div>
+  </form>
+
+  {% if page_obj %}
+  <table class="table table-hover list-table">
+    <thead class="table-header">
+      <tr>
+        <th>No</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Created User</th>
+        <th>Type</th>
+        <th>Phone</th>
+        <th>Date of Birth</th>
+        <th>Address</th>
+        <th>Created Date</th>
+        <th>Updated Date</th>
+        <th>Operation</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in page_obj %}
+      <tr>
+        <td>{{forloop.counter}}</td>
+        <td>
+          <a href="#" data-toggle="modal" data-target="#detailModal"
+            onclick="goToUserDetail('{{ user.id }}')">{{ user.name }}</a>
+        </td>
+        <td>{{user.email}}</td>
+        <td>{{user.created_user}}</td>
+        <td>{{user.type}}</td>
+        <td>{{user.phone}}</td>
+        <td>{{user.dob|date:"d/m/Y"}}</td>
+        <td>{{user.address}}</td>
+        <td>{{user.created_at|date:"d/m/Y"}}</td>
+        <td>{{user.updated_at|date:"d/m/Y"}}</td>
+        <td>
+          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#userDelModal"
+            onclick="goToUserDelete('{{ user.id }}')">Delete</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <p>No users are available.</p>
+  {% endif %}
+  <div class="pagination float-right">
+    <span class="step-links">
+      {% if page_obj.has_previous %}
+      <a href="?page=1">&laquo; first</a>
+      <a href="?page={{ page_obj.previous_page_number }}">previous</a>
+      {% endif %}
+
+      <span class="current">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}.
+      </span>
+
+      {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}">next</a>
+      <a href="?page={{ page_obj.paginator.num_pages }}">last &raquo;</a>
+      {% endif %}
+    </span>
+  </div>
+  {% block detail %}{% include 'bulletinboard/user-detail.html' %}{% endblock %}
+  {% block delete %}{% include 'bulletinboard/user-delete.html' %}{% endblock %}
+</div>
+{% endblock %}

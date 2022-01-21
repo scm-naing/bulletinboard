@@ -1,0 +1,16 @@
+.form {
+  margin: 30px 0;
+}
+.field {
+  margin-right: 5px;
+}
+.date-picker {
+  padding: 4px 1px;
+}
+.list-table {
+  margin: 0 10p;
+}
+.table-header {
+  background: #4cae4c;
+  color: #ffffff;
+}

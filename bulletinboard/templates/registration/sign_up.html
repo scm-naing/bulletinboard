@@ -1,0 +1,87 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+
+{% if messages %}
+{% for message in messages %}
+{% if message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+<div class="alert alert-success" role="alert">
+  <div id="primary-notification-div">
+    {{ message }}
+  </div>
+</div>
+{% endif %}
+{% endfor %}
+{% endif %}
+
+<form class="form-horizontal" action="{% url 'create_account' %}" method="post">
+  {% csrf_token %}
+
+  {% if form.errors %}
+  {% for error in form.non_field_errors %}
+  <div class="alert alert-danger">
+    <strong>{{ error|escape }}</strong>
+  </div>
+  {% endfor %}
+  {% endif %}
+
+  <div class="detail-form">
+    <div class="form-group">
+      <div class="col-sm-3">
+        {{form.name.label}}
+      </div>
+      <div class="col-sm-9">
+        {{form.name}}
+        {% if form.errors.name %}
+        <label for="" class="error text text-danger">{{form.errors.name|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-3">
+        {{form.email.label}}
+      </div>
+      <div class="col-sm-9">
+        {{form.email}}
+        {% if form.errors.email %}
+        <label for="" class="error text text-danger">{{form.errors.email|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-3">
+        {{form.password.label}}
+      </div>
+      <div class="col-sm-9">
+        {{form.password}}
+        {% if form.errors.password %}
+        <label for="" class="error text text-danger">{{form.errors.password|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-3">
+        {{form.password_confirmation.label}}
+      </div>
+      <div class="col-sm-9">
+        {{form.password_confirmation}}
+        {% if form.errors.password_confirmation %}
+        <label for="" class="error text text-danger">{{form.errors.password_confirmation|striptags}}</label>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-10">
+        <button type="submit" class="btn btn-primary">
+          Create
+        </button>
+        <input class="btn btn-default" type="button" value="Clear" id="resetBtn" onClick="this.form.reset()" />
+      </div>
+    </div>
+  </div>
+</form>
+{% endblock %}
