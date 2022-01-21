@@ -1,6 +1,6 @@
 # my.cnf
 [client]
-database = test
+database = bulletinboard
 user = root
 password = root
 host = localhost
