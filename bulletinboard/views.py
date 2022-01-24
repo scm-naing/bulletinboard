@@ -150,7 +150,6 @@ def postUpdate(request, pk):
     form = PostForm(initial={"title": edit_post.title,
                     "description": edit_post.description})
     check_route('post', request.META.get('HTTP_REFERER'), request)
-    request.session["status"] = edit_post.status
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():

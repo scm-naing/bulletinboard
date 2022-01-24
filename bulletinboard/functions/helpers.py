@@ -1,7 +1,9 @@
 import os
 
+
 def save_temp(f):
-    if not f: return ''
+    if not f:
+        return ''
     with open('bulletinboard/static/tmp/'+f.name, 'wb+') as destination:
         for chunk in f.chunks():
             destination.write(chunk)
@@ -9,7 +11,8 @@ def save_temp(f):
 
 
 def handle_uploaded_file(fname):
-    if not fname: return ''
+    if not fname:
+        return ''
     with open('bulletinboard/static/tmp/'+fname, 'rb') as tmp:
         img_str = tmp.read()
         with open('bulletinboard/static/upload/'+fname, 'wb+') as upload:
@@ -24,13 +27,13 @@ def remove_temp(f, root_dir):
 def check_route(current_route, previousRoute, request):
     if previousRoute is not None:
         splittedRoute = previousRoute.split('/')
+        print('==== splittedRoute[-2] ====')
+        print(splittedRoute)
         if (splittedRoute[-2] == 'create'):
             if (splittedRoute[-3] != current_route):
                 request.session["save_confirm_page"] = False
-        elif (splittedRoute[-2] == 'update'):
-            if (splittedRoute[-4] != current_route):
-                request.session["save_confirm_page"] = False
         else:
-            request.session["save_confirm_page"] = False
+            if (splittedRoute[-3] != current_route):
+                request.session["save_confirm_page"] = False
     else:
         request.session["save_confirm_page"] = False
