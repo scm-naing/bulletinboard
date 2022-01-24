@@ -145,6 +145,7 @@ def postCreate(request):
                         updated_at=timezone.now()
                     )
                     new_post.save()
+                    request.session["save_confirm_page"] = False
                     return HttpResponseRedirect(reverse("index"))
                 else:
                     formData = {
@@ -156,6 +157,7 @@ def postCreate(request):
                     form.fields["description"].widget.attrs["readonly"] = True
                     request.session["save_confirm_page"] = True
             elif "_cancel" in request.POST:
+                request.session["save_confirm_page"] = False
                 return HttpResponseRedirect(reverse("post-create"))
     context = {
         "form": form,
@@ -209,6 +211,7 @@ def postUpdate(request, pk):
                     form.fields["description"].widget.attrs["readonly"] = True
                     request.session["save_confirm_page"] = True
             elif "_cancel" in request.POST:
+                request.session["save_confirm_page"] = False
                 return HttpResponseRedirect(reverse("post-update", kwargs={"pk": pk}))
     context = {
         "id": pk,
@@ -580,7 +583,7 @@ def csv_import(request):
 
 
 @login_required
-def download_post_list_csv():
+def download_post_list_csv(request):
     """
     For csv download
     Return: csv downloaded data

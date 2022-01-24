@@ -64,7 +64,7 @@
           <label class="switch">
             <input type="checkbox" name="post_status" id="post-status" value={{status}}
               {%if status == '1'%} checked {%endif%}
-              {% if post_confirm %} readOnly {% endif %} />
+              {% if save_confirm_page %} readOnly {% endif %} />
             <span class="slider round"></span>
           </label>
         </div>
@@ -79,7 +79,7 @@
             Create
             {% endif %}
           </button>
-          {% if post_confirm %}
+          {% if save_confirm_page %}
           <button type="submit" name="_cancel" class="btn btn-default">
             Cancel
           </button>

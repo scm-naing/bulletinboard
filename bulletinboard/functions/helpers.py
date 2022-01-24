@@ -45,8 +45,6 @@ def check_route(current_route, previousRoute, request):
     """
     if previousRoute is not None:
         splittedRoute = previousRoute.split("/")
-        print("==== splittedRoute[-2] ====")
-        print(splittedRoute)
         if (splittedRoute[-2] == "create"):
             if (splittedRoute[-3] != current_route):
                 request.session["save_confirm_page"] = False
