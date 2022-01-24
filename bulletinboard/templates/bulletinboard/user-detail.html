@@ -1,5 +1,6 @@
 {% block detail %}
 {% load static %}
+{% get_media_prefix as MEDIA_URL %}
 <link href="{% static 'css/detail-dialog.css' %}" rel="stylesheet">
 <div class="modal fade" id="detailModal" tabindex="-1" role="dialog" aria-labelledby="detailModalLabel"
   aria-hidden="true">
@@ -14,7 +15,9 @@
       <div class="modal-body">
         <div class="container-fluid text-break">
           <div class="row">
-            <div class="col-sm-4" id="user-detail-profile"></div>
+            <div class="col-sm-4" id="user-detail-profile">
+              <img id="user-profile-dialog" src="" alt="user profile" class="profile-img">
+            </div>
             <div class="col-sm-8">
               <div class="row data-row">
                 <div class="col-sm-5">Name</div>

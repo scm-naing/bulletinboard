@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load static %}
+{% get_media_prefix as MEDIA_URL %}
 <link rel="stylesheet" href="{% static 'css/detail.css' %}">
 
 {% if messages %}
@@ -106,7 +107,7 @@
       <div class="col-sm-4">Old profile</div>
       {% if old_profile %}
       <div class="col-sm-8">
-        <img src="{% static old_profile %}" alt="User old profile" class="profile-img">
+        <img src="{{MEDIA_URL}}{{old_profile}}" alt="User old profile" class="profile-img">
       </div>
       {% else %}
       <div class="col-sm-8">-</div>
@@ -121,7 +122,7 @@
       {%if save_confirm_page %}
       <div class="col-sm-8">
         {% if profile %}
-        <img src="{% static profile %}" alt="user new profile" class="profile-img">
+        <img src="{{MEDIA_URL}}{{profile}}" alt="user new profile" class="profile-img">
         {% else %}
         <p class="glyphicon glyphicon-user profile-icon"></p>
         {% endif %}

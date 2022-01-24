@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load static %}
+{% get_media_prefix as MEDIA_URL %}
 <link rel="stylesheet" href="{% static 'css/detail.css' %}">
 
 {% if messages %}
@@ -131,8 +132,7 @@
       </div>
       {% if profile and save_confirm_page %}
       <div class="col-sm-8">
-        {% comment %} <img src="{% static profile %}" alt="User profile" class="profile-img"> {% endcomment %}
-        <img src={% static profile %} alt="User profile" class="profile-img">
+        <img src={{MEDIA_URL}}{{profile}} alt="User profile" class="profile-img">
       </div>
       {% else %}
       <div class="col-sm-8">

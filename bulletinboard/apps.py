@@ -1,6 +1,9 @@
+"""
+Declare main class of bulletinboard project
+"""
 from django.apps import AppConfig
 
 
 class BulletinboardConfig(AppConfig):
-    default_auto_field = 'django.db.models.BigAutoField'
-    name = 'bulletinboard'
+    default_auto_field = "django.db.models.BigAutoField"
+    name = "bulletinboard"

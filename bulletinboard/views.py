@@ -17,28 +17,37 @@ from .form import PostForm, PostSearchForm, SignUpForm, UserEditForm, UserForm, 
 from .models import Post, User
 from .functions.helpers import check_route, handle_uploaded_file, remove_temp, save_temp
 
-ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-
 def user_login(request):
-    if request.method == 'POST':
-        email = request.POST['email']
+    """
+    User login
+    Param: request (client request)
+    Return: execute login and route to post list if request is post. render login form if get request
+    """
+    if request.method == "POST":
+        email = request.POST["email"]
         email_user = User.objects.filter(
             email=email, delete_user_id=None, deleted_at=None)
         if email_user:
-            password = request.POST['password']
+            password = request.POST["password"]
             authUser = authenticate(request, username=email, password=password)
             if authUser:
                 login(request, authUser)
-                return redirect(request.POST.get('next', '/'))
+                return redirect(request.POST.get("next", "/"))
             else:
-                messages.error(request, f'Email and Password does not match.')
+                messages.error(request, f"Email and Password does not match.")
         else:
-            messages.info(request, f'Email does not exist or deleted')
-    return render(request, 'registration/login.html')
+            messages.info(request, f"Email does not exist or deleted")
+    return render(request, "registration/login.html")
 
 
 @login_required
 def index(request):
+    """
+    Post list
+    Param: request (client request)
+    Return: display all posts associated with user permission and search form if request is post.
+    return post list with all posts associated with user permission at initial
+    """
     user = get_object_or_404(User, pk=request.user.id)
     query = Q()
     if user.type == "1":
@@ -48,25 +57,31 @@ def index(request):
     post_search_form = PostSearchForm()
     post_list = Post.objects.all().filter(query).order_by("-updated_at")
     if (request.method == "POST"):
-        if '_search' in request.POST:
+        if "_search" in request.POST:
             post_search_form = PostSearchForm(request.POST)
             if post_search_form.is_valid():
-                search = post_search_form.cleaned_data.get('keyword')
+                search = post_search_form.cleaned_data.get("keyword")
                 search_q = Q()
                 search_q.add(Q(title__icontains=search), Q.OR)
                 search_q.add(Q(description__icontains=search), Q.OR)
                 post_list = post_list.filter(search_q).order_by("-updated_at")
-        elif '_create' in request.POST:
-            return HttpResponseRedirect(reverse('post-create'))
+        elif "_create" in request.POST:
+            return HttpResponseRedirect(reverse("post-create"))
 
     paginator = Paginator(post_list, 5)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, 'index.html', {'page_obj': page_obj, 'form': post_search_form})
+    return render(request, "index.html", {"page_obj": page_obj, "form": post_search_form})
 
 
 @login_required
 def userList(request):
+    """
+    User list
+    Param: request (client request)
+    Return: display all users associated with user permission and search form if request is post.
+    return user list with all users associated with user permission at initial
+    """
     search_form = UserSearchForm()
     user = get_object_or_404(User, pk=request.user.id)
     q = Q()
@@ -75,13 +90,13 @@ def userList(request):
     q.add(Q(delete_user_id=None), Q.AND)
     q.add(Q(deleted_at=None), Q.AND)
     user_list = User.objects.filter(q).order_by("-updated_at")
-    if (request.method == 'POST'):
+    if (request.method == "POST"):
         search_form = UserSearchForm(request.POST)
         if search_form.is_valid():
-            name = search_form.cleaned_data.get('name')
-            email = search_form.cleaned_data.get('email')
-            from_date = search_form.cleaned_data.get('from_date')
-            to_date = search_form.cleaned_data.get('to_date')
+            name = search_form.cleaned_data.get("name")
+            email = search_form.cleaned_data.get("email")
+            from_date = search_form.cleaned_data.get("from_date")
+            to_date = search_form.cleaned_data.get("to_date")
             or_q = Q()
             if name:
                 or_q.add(Q(name__icontains=name), Q.OR)
@@ -94,19 +109,25 @@ def userList(request):
             user_list = user_list.filter(or_q).order_by("-updated_at")
 
     for user_data in user_list:
-        user_data.type = 'Admin' if user_data.type == '0' else 'User'
+        user_data.type = "Admin" if user_data.type == "0" else "User"
         list_data = User.objects.get(pk=user_data.created_user_id)
-        user_data.created_user = list_data.name if hasattr(list_data, 'name') else ''
+        user_data.created_user = list_data.name if hasattr(list_data, "name") else ""
     paginator = Paginator(user_list, 5)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
-    return render(request, 'bulletinboard/user_list.html', {'page_obj': page_obj, 'form': search_form})
+    return render(request, "bulletinboard/user_list.html", {"page_obj": page_obj, "form": search_form})
 
 
 @login_required
 def postCreate(request):
+    """
+    For post create
+    Param: request (client request)
+    Return: create post according to request form and render to post list if request method POST.
+    return render post create form at initial
+    """
     form = PostForm()
-    check_route('post', request.META.get('HTTP_REFERER'), request)
+    check_route("post", request.META.get("HTTP_REFERER"), request)
     user = get_object_or_404(User, pk=request.user.id)
     if request.method == "POST":
         form = PostForm(request.POST)
@@ -114,8 +135,8 @@ def postCreate(request):
             if "_save" in request.POST:
                 if request.session.get("save_confirm_page") == True:
                     new_post = Post(
-                        title=form.cleaned_data.get('title'),
-                        description=form.cleaned_data.get('description'),
+                        title=form.cleaned_data.get("title"),
+                        description=form.cleaned_data.get("description"),
                         status="1",
                         user=user,
                         created_user_id=user.id,
@@ -124,18 +145,18 @@ def postCreate(request):
                         updated_at=timezone.now()
                     )
                     new_post.save()
-                    return HttpResponseRedirect(reverse('index'))
+                    return HttpResponseRedirect(reverse("index"))
                 else:
                     formData = {
-                        'title': form.cleaned_data.get('title'),
-                        'description': form.cleaned_data.get('description'),
+                        "title": form.cleaned_data.get("title"),
+                        "description": form.cleaned_data.get("description"),
                     }
                     form = PostForm(initial=formData)
-                    form.fields['title'].widget.attrs['readonly'] = True
-                    form.fields['description'].widget.attrs['readonly'] = True
+                    form.fields["title"].widget.attrs["readonly"] = True
+                    form.fields["description"].widget.attrs["readonly"] = True
                     request.session["save_confirm_page"] = True
             elif "_cancel" in request.POST:
-                return HttpResponseRedirect(reverse('post-create'))
+                return HttpResponseRedirect(reverse("post-create"))
     context = {
         "form": form,
         "operation": "create",
@@ -146,43 +167,49 @@ def postCreate(request):
 
 @login_required
 def postUpdate(request, pk):
+    """
+    For post update
+    Param: request (client request), pk (model primary key (id))
+    Return: update post according to request and render post list if request method POST.
+    return render post create form at initial
+    """
     edit_post = get_object_or_404(Post, pk=pk)
     form = PostForm(initial={"title": edit_post.title,
                     "description": edit_post.description})
-    check_route('post', request.META.get('HTTP_REFERER'), request)
+    check_route("post", request.META.get("HTTP_REFERER"), request)
     if request.method == "POST":
         form = PostForm(request.POST)
         if form.is_valid():
             if "_save" in request.POST:
                 if request.session.get("save_confirm_page") == True:
                     user = get_object_or_404(User, pk=request.user.id)
-                    edit_post.title = form.cleaned_data.get('title')
+                    edit_post.title = form.cleaned_data.get("title")
                     edit_post.description = form.cleaned_data.get(
-                        'description')
+                        "description")
                     edit_post.status = request.session.get("status")
                     edit_post.user = user
                     edit_post.updated_user_id = user.id
                     edit_post.updated_at = timezone.now()
                     edit_post.save()
                     request.session["save_confirm_page"] = False
-                    return HttpResponseRedirect(reverse('index'))
+                    return HttpResponseRedirect(reverse("index"))
                 else:
-                    if len(request.POST.getlist('post_status')) > 0:
+                    if len(request.POST.getlist("post_status")) > 0:
                         status = "1"
                     else:
                         status = "0"
                     request.session["status"] = status
                     formData = {
-                        'title': form.cleaned_data.get('title'),
-                        'description': form.cleaned_data.get('description'),
-                        'status': status
+                        "title": form.cleaned_data.get("title"),
+                        "description": form.cleaned_data.get("description"),
+                        "status": status
                     }
                     form = PostForm(initial=formData)
-                    form.fields['title'].widget.attrs['readonly'] = True
-                    form.fields['description'].widget.attrs['readonly'] = True
+                    form.fields["title"].widget.attrs["readonly"] = True
+                    form.fields["description"].widget.attrs["readonly"] = True
                     request.session["save_confirm_page"] = True
             elif "_cancel" in request.POST:
-                return HttpResponseRedirect(reverse('post-update', kwargs={'pk': pk}))
+                return HttpResponseRedirect(reverse("post-update", kwargs={"pk": pk}))
     context = {
         "id": pk,
         "form": form,
@@ -195,23 +222,33 @@ def postUpdate(request, pk):
 
 @login_required
 def post_detail(request):
-    post_id = request.GET['post_id']
+    """
+    Display for post detail dialog
+    Param: request (client request)
+    Return: request post data to ajax func and show dialog
+    """
+    post_id = request.GET["post_id"]
     obj = Post.objects.get(pk=post_id)
     created_user_name = obj.user.name
     updated_user = User.objects.get(pk=obj.updated_user_id)
-    data = serializers.serialize('json', [obj, ])
+    data = serializers.serialize("json", [obj, ])
     struct = json.loads(data)
-    struct[0]['created_user_name'] = created_user_name
-    struct[0]['updated_user_name'] = updated_user.name
+    struct[0]["created_user_name"] = created_user_name
+    struct[0]["updated_user_name"] = updated_user.name
     data = json.dumps(struct[0])
     return HttpResponse(data)
 
 
 @login_required
 def post_delete_confirm(request):
-    post_id = request.GET['post_id']
+    """
+    Display for post delete dialog
+    Param: request (client request)
+    Return: request post data to ajax func and show delete confrim dialog
+    """
+    post_id = request.GET["post_id"]
     obj = Post.objects.get(pk=post_id)
-    data = serializers.serialize('json', [obj, ])
+    data = serializers.serialize("json", [obj, ])
     struct = json.loads(data)
     data = json.dumps(struct[0])
     return HttpResponse(data)
@@ -219,37 +256,48 @@ def post_delete_confirm(request):
 
 @login_required
 def post_delete(request):
-    post_id = request.GET['post_id']
+    """
+    For post delete
+    Param: request (client request)
+    Return: request post list if delete success
+    """
+    post_id = request.GET["post_id"]
     obj = get_object_or_404(Post, pk=post_id)
     obj.delete_user_id = request.user.id
     obj.deleted_at = timezone.now()
     obj.save()
-    return HttpResponseRedirect(reverse('index'))
+    return HttpResponseRedirect(reverse("index"))
 
 
 @login_required
 def userCreate(request):
+    """
+    For post create
+    Param: request (client request)
+    Return: create user according to request form and render to user list if request method POST.
+    return render user create form at initial
+    """
     form = UserForm()
-    check_route('user', request.META.get('HTTP_REFERER'), request)
-    profile = ''
+    check_route("user", request.META.get("HTTP_REFERER"), request)
+    profile = ""
     if request.method == "POST":
         if "_save" in request.POST:
             form = UserForm(request.POST, request.FILES)
             if form.is_valid():
                 if request.session.get("save_confirm_page") == True:
                     try:
-                        handle_uploaded_file(request.session.get('profile'))
+                        handle_uploaded_file(request.session.get("profile"))
                         user = get_object_or_404(User, pk=request.user.id)
                         new_user = User(
-                            name=form.cleaned_data.get('name'),
-                            email=form.cleaned_data.get('email'),
+                            name=form.cleaned_data.get("name"),
+                            email=form.cleaned_data.get("email"),
                             password=make_password(
-                                form.cleaned_data.get('password')),
-                            type=form.cleaned_data.get('type'),
-                            phone=form.cleaned_data.get('phone'),
-                            dob=form.cleaned_data.get('dob'),
-                            address=form.cleaned_data.get('address'),
-                            profile='upload/'+request.session.get('profile'),
+                                form.cleaned_data.get("password")),
+                            type=form.cleaned_data.get("type"),
+                            phone=form.cleaned_data.get("phone"),
+                            dob=form.cleaned_data.get("dob"),
+                            address=form.cleaned_data.get("address"),
+                            profile="upload/"+request.session.get("profile"),
                             created_user_id=user.id,
                             updated_user_id=user.id,
                             created_at=timezone.now(),
@@ -257,47 +305,47 @@ def userCreate(request):
                         )
                         new_user.save()
                         request.session["save_confirm_page"] = False
-                        remove_temp(request.session.get('profile'), ROOT_DIR)
-                        return HttpResponseRedirect(reverse('user-list'))
+                        remove_temp(request.session.get("profile"))
+                        return HttpResponseRedirect(reverse("user-list"))
                     except Exception as error:
                         request.session["save_confirm_page"] = False
                         form.add_error(None, str(error))
                 else:
                     if "profile" in request.FILES:
-                        profile = save_temp(request.FILES['profile'])
+                        profile = save_temp(request.FILES["profile"])
                         formData = {
-                            'name': form.cleaned_data.get('name'),
-                            'email': form.cleaned_data.get('email'),
-                            'password': form.cleaned_data.get('password'),
-                            'passwordConfirm': form.cleaned_data.get('passwordConfirm'),
-                            'type': form.cleaned_data.get('type'),
-                            'phone': form.cleaned_data.get('phone'),
-                            'dob': form.cleaned_data.get('dob'),
-                            'address': form.cleaned_data.get('address'),
+                            "name": form.cleaned_data.get("name"),
+                            "email": form.cleaned_data.get("email"),
+                            "password": form.cleaned_data.get("password"),
+                            "passwordConfirm": form.cleaned_data.get("passwordConfirm"),
+                            "type": form.cleaned_data.get("type"),
+                            "phone": form.cleaned_data.get("phone"),
+                            "dob": form.cleaned_data.get("dob"),
+                            "address": form.cleaned_data.get("address"),
                         }
                         form = UserForm(initial=formData)
                         request.session["save_confirm_page"] = True
                         request.session["profile"] = profile
-                        form.fields['name'].widget.attrs['readonly'] = True
-                        form.fields['email'].widget.attrs['readonly'] = True
-                        form.fields['password'].widget.attrs['readonly'] = True
-                        form.fields['passwordConfirm'].widget.attrs['readonly'] = True
-                        form.fields['type'].widget.attrs['readonly'] = True
-                        form.fields['phone'].widget.attrs['readonly'] = True
-                        form.fields['dob'].widget.attrs['readonly'] = True
-                        form.fields['address'].widget.attrs['readonly'] = True
-                        form.fields['profile'].widget.attrs['readonly'] = True
+                        form.fields["name"].widget.attrs["readonly"] = True
+                        form.fields["email"].widget.attrs["readonly"] = True
+                        form.fields["password"].widget.attrs["readonly"] = True
+                        form.fields["passwordConfirm"].widget.attrs["readonly"] = True
+                        form.fields["type"].widget.attrs["readonly"] = True
+                        form.fields["phone"].widget.attrs["readonly"] = True
+                        form.fields["dob"].widget.attrs["readonly"] = True
+                        form.fields["address"].widget.attrs["readonly"] = True
+                        form.fields["profile"].widget.attrs["readonly"] = True
                     else:
                         request.session["save_confirm_page"] = False
-                        form.add_error('profile', 'profile can not be blank')
+                        form.add_error("profile", "profile can not be blank")
         else:
             request.session["save_confirm_page"] = False
-            remove_temp(request.session.get('profile'), ROOT_DIR)
-            return HttpResponseRedirect(reverse('user-create'))
+            remove_temp(request.session.get("profile"))
+            return HttpResponseRedirect(reverse("user-create"))
     context = {
         "form": form,
         "operation": "create",
-        "profile": 'tmp/'+profile,
+        "profile": "tmp/"+profile,
         "save_confirm_page": request.session.get("save_confirm_page")
     }
     return render(request, "bulletinboard/user-create.html", context)
@@ -305,6 +353,11 @@ def userCreate(request):
 
 @login_required
 def userProfile(request):
+    """
+    Display user profile.
+    Param: request (client request).
+    Return: show page for current login user detail.
+    """
     current_user = get_object_or_404(User, pk=request.user.id)
     context = {
         "id": current_user.id,
@@ -321,18 +374,24 @@ def userProfile(request):
 
 @login_required
 def userUpdate(request, pk):
+    """
+    For user update
+    Param: request (client request), pk (id of user).
+    Return: update user according to request form and render to user list if request method POST.
+    return render user update form at initial
+    """
     req_user = get_object_or_404(User, pk=pk)
-    check_route('user', request.META.get('HTTP_REFERER'), request)
+    check_route("user", request.META.get("HTTP_REFERER"), request)
     profile = req_user.profile
     tmp_file = profile
     formData = {
-        'name': req_user.name,
-        'email': req_user.email,
-        'type': req_user.type,
-        'phone': req_user.phone,
-        'dob': req_user.dob,
-        'address': req_user.address,
-        'profile': profile,
+        "name": req_user.name,
+        "email": req_user.email,
+        "type": req_user.type,
+        "phone": req_user.phone,
+        "dob": req_user.dob,
+        "address": req_user.address,
+        "profile": profile,
     }
     form = UserEditForm(initial=formData)
     if request.method == "POST":
@@ -341,62 +400,62 @@ def userUpdate(request, pk):
             if form.is_valid():
                 if request.session.get("save_confirm_page") == True:
                     try:
-                        image = ''
+                        image = ""
                         if request.session.get("updated_image") == True:
-                            handle_uploaded_file(request.session.get('profile'))
-                            image = 'upload/'+request.session.get('profile')
+                            handle_uploaded_file(request.session.get("profile"))
+                            image = "upload/"+request.session.get("profile")
                         else:
-                            image = request.session.get('profile')
+                            image = request.session.get("profile")
                         user = get_object_or_404(User, pk=request.user.id)
-                        user.name = form.cleaned_data.get('name')
-                        user.email = form.cleaned_data.get('email')
-                        user.type = form.cleaned_data.get('type')
-                        user.phone = form.cleaned_data.get('phone')
-                        user.dob = form.cleaned_data.get('dob')
-                        user.address = form.cleaned_data.get('address')
+                        user.name = form.cleaned_data.get("name")
+                        user.email = form.cleaned_data.get("email")
+                        user.type = form.cleaned_data.get("type")
+                        user.phone = form.cleaned_data.get("phone")
+                        user.dob = form.cleaned_data.get("dob")
+                        user.address = form.cleaned_data.get("address")
                         user.profile = image
                         user.updated_user_id = user.id
                         user.updated_at = timezone.now()
                         user.save()
                         request.session["save_confirm_page"] = False
                         if request.session.get("updated_image") == True:
-                            remove_temp(request.session.get('profile'), ROOT_DIR)
-                        return HttpResponseRedirect(reverse('user-list'))
+                            remove_temp(request.session.get("profile"))
+                        return HttpResponseRedirect(reverse("user-list"))
                     except Exception as error:
                         request.session["save_confirm_page"] = False
                         form.add_error(None, str(error))
                 else:
-                    if 'profile' in request.FILES:
-                        profile = save_temp(request.FILES['profile'])
+                    if "profile" in request.FILES:
+                        profile = save_temp(request.FILES["profile"])
                         request.session["updated_image"] = True
-                        tmp_file = 'tmp/{}'.format(profile)
+                        tmp_file = "tmp/{}".format(profile)
                     else:
                         request.session["updated_image"] = False
 
                     formData = {
-                        'name': form.cleaned_data.get('name'),
-                        'email': form.cleaned_data.get('email'),
-                        'type': form.cleaned_data.get('type'),
-                        'phone': form.cleaned_data.get('phone'),
-                        'dob': form.cleaned_data.get('dob'),
-                        'address': form.cleaned_data.get('address'),
-                        'profile': profile,
+                        "name": form.cleaned_data.get("name"),
+                        "email": form.cleaned_data.get("email"),
+                        "type": form.cleaned_data.get("type"),
+                        "phone": form.cleaned_data.get("phone"),
+                        "dob": form.cleaned_data.get("dob"),
+                        "address": form.cleaned_data.get("address"),
+                        "profile": profile,
                     }
                     form = UserEditForm(initial=formData)
                     request.session["save_confirm_page"] = True
                     request.session["profile"] = profile
-                    form.fields['name'].widget.attrs['readonly'] = True
-                    form.fields['email'].widget.attrs['readonly'] = True
-                    form.fields['type'].widget.attrs['readonly'] = True
-                    form.fields['phone'].widget.attrs['readonly'] = True
-                    form.fields['dob'].widget.attrs['readonly'] = True
-                    form.fields['address'].widget.attrs['readonly'] = True
-                    form.fields['profile'].widget.attrs['disabled'] = True
+                    form.fields["name"].widget.attrs["readonly"] = True
+                    form.fields["email"].widget.attrs["readonly"] = True
+                    form.fields["type"].widget.attrs["readonly"] = True
+                    form.fields["phone"].widget.attrs["readonly"] = True
+                    form.fields["dob"].widget.attrs["readonly"] = True
+                    form.fields["address"].widget.attrs["readonly"] = True
+                    form.fields["profile"].widget.attrs["disabled"] = True
         else:
             request.session["save_confirm_page"] = False
             if request.session.get("updated_image") == True:
-                remove_temp(request.session.get('profile'), ROOT_DIR)
-            return HttpResponseRedirect(reverse('user-update', kwargs={'pk': pk}))
+                remove_temp(request.session.get("profile"))
+            return HttpResponseRedirect(reverse("user-update", kwargs={"pk": pk}))
     context = {
         "id": req_user.id,
         "form": form,
@@ -409,23 +468,33 @@ def userUpdate(request, pk):
 
 @login_required
 def user_detail(request):
-    user_id = request.GET['user_id']
+    """
+    Display for user detail dialog.
+    Param: request (client request).
+    Return: request user data to ajax func and show dialog.
+    """
+    user_id = request.GET["user_id"]
     obj = User.objects.get(pk=user_id)
     created_user = User.objects.get(pk=obj.created_user_id)
     updated_user = User.objects.get(pk=obj.updated_user_id)
-    data = serializers.serialize('json', [obj, ])
+    data = serializers.serialize("json", [obj, ])
     struct = json.loads(data)
-    struct[0]['created_user_name'] = created_user.name
-    struct[0]['updated_user_name'] = updated_user.name
+    struct[0]["created_user_name"] = created_user.name
+    struct[0]["updated_user_name"] = updated_user.name
     data = json.dumps(struct[0])
     return HttpResponse(data)
 
 
 @login_required
 def user_delete_confirm(request):
-    user_id = request.GET['user_id']
+    """
+    Display for user delete dialog.
+    Param: request (client request).
+    Return: request user data to ajax func and show delete confrim dialog
+    """
+    user_id = request.GET["user_id"]
     obj = get_object_or_404(User, pk=user_id)
-    data = serializers.serialize('json', [obj, ])
+    data = serializers.serialize("json", [obj, ])
     struct = json.loads(data)
     data = json.dumps(struct[0])
     return HttpResponse(data)
@@ -433,15 +502,25 @@ def user_delete_confirm(request):
 
 @login_required
 def user_delete(request):
-    user_id = request.GET['user_id']
+    """
+    For user delete.
+    Param: request (client request).
+    Return: request user data to ajax func and show delete confrim dialog
+    """
+    user_id = request.GET["user_id"]
     obj = get_object_or_404(User, pk=user_id)
     obj.delete_user_id = request.user.id
     obj.deleted_at = timezone.now()
     obj.save()
-    return HttpResponseRedirect(reverse('user-list'))
+    return HttpResponseRedirect(reverse("user-list"))
 
 
 def check_csv_row(data):
+    """
+    For cvs import data validation
+    Param: data of csv
+    return: valid data of array or false value
+    """
     arr_csv = []
     for row in data:
         if len(row) != 3:
@@ -452,17 +531,23 @@ def check_csv_row(data):
 
 @login_required
 def csv_import(request):
+    """
+    For csv import (upload).
+    Param: request (client request).
+    Return: csv upload form at initial.
+    execute csv upload and then render post list if form POST request submit
+    """
     form = csvForm()
-    message = ''
+    message = ""
     if request.method == "POST":
         form = csvForm(request.POST, request.FILES)
         if "csv_file" in request.FILES:
             user = get_object_or_404(User, pk=request.user.id)
             req_file = request.FILES["csv_file"]
             if (req_file.content_type == "application/vnd.ms-excel"):
-                csv_path = handle_uploaded_file(req_file)
-                with open("bulletinboard/static/{}".format(csv_path)) as csv_file:
-                    csv_reader = csv.reader(csv_file, delimiter=',')
+                csv_path = save_temp(req_file)
+                with open("media/tmp/{}".format(csv_path)) as csv_file:
+                    csv_reader = csv.reader(csv_file, delimiter=",")
                     valid_csv = check_csv_row(csv_reader)
                     if valid_csv:
                         for i, row in enumerate(valid_csv):
@@ -478,6 +563,8 @@ def csv_import(request):
                                     updated_at=timezone.now()
                                 )
                                 csv_post.save()
+                        csv_file.close()
+                        remove_temp(csv_path)
                         return HttpResponseRedirect(reverse("index"))
                     else:
                         message = "Post upload csv must have 3 columns"
@@ -493,14 +580,18 @@ def csv_import(request):
 
 
 @login_required
-def download_post_list_csv(request):
+def download_post_list_csv():
+    """
+    For csv download
+    Return: csv downloaded data
+    """
     post_list = Post.objects.all().order_by("-updated_at")
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="post_list.csv"'
+    response = HttpResponse(content_type="text/csv")
+    response["Content-Disposition"] = "attachment; filename='post_list.csv'"
 
     writer = csv.writer(response)
-    writer.writerow(['id', 'title', 'description', 'status', 'created_user_id',
-                    'updated_user_id', 'delete_user_id', 'deleted_at', 'created_at', 'updated_at'])
+    writer.writerow(["id", "title", "description", "status", "created_user_id",
+                    "updated_user_id", "delete_user_id", "deleted_at", "created_at", "updated_at"])
 
     for post in post_list:
         writer.writerow([post.id, post.title, post.description, post.status, post.created_user_id,
@@ -510,12 +601,17 @@ def download_post_list_csv(request):
 
 @login_required
 def user_password_reset(request):
+    """
+    User's password change.
+    Param: request (client request).
+    Return: Password reset form at initial. Execute password reset with request data and route to user list
+    """
     reset_form = passwordResetForm()
     if request.method == "POST":
         reset_form = passwordResetForm(request.POST)
         if reset_form.is_valid():
-            password = reset_form.cleaned_data.get('password')
-            new_password = reset_form.cleaned_data.get('new_password')
+            password = reset_form.cleaned_data.get("password")
+            new_password = reset_form.cleaned_data.get("new_password")
             valid_pass = get_object_or_404(User, pk=request.user.id)
             if (check_password(password, valid_pass.password)):
                 valid_pass.password = make_password(new_password)
@@ -528,29 +624,33 @@ def user_password_reset(request):
 
 
 def signup(request):
+    """
+    For create new account
+    Param: request (client request)
+    Return: signup form at initial. Create new user with request data and return to post list
+    """
     form = SignUpForm()
-
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
             new_user = User(
-                name=form.cleaned_data.get('name'),
-                email=form.cleaned_data.get('email'),
-                password=make_password(form.cleaned_data.get('password')),
+                name=form.cleaned_data.get("name"),
+                email=form.cleaned_data.get("email"),
+                password=make_password(form.cleaned_data.get("password")),
                 created_at=timezone.now(),
                 updated_at=timezone.now()
             )
             new_user.save()
             authUser = authenticate(request, username=form.cleaned_data.get(
-                'email'), password=form.cleaned_data.get('password'))
+                "email"), password=form.cleaned_data.get("password"))
             if authUser:
                 login(request, authUser)
-                request.session['login_username'] = form.cleaned_data.get(
-                    'name')
-            messages.info(request, f'User signup successful.')
-            return HttpResponseRedirect(reverse('index'))
+                request.session["login_username"] = form.cleaned_data.get(
+                    "name")
+            messages.info(request, f"User signup successful.")
+            return HttpResponseRedirect(reverse("index"))
     context = {
-        'title': 'Sign Up',
-        'form': form
+        "title": "Sign Up",
+        "form": form
     }
-    return render(request, 'registration/sign_up.html', context)
+    return render(request, "registration/sign_up.html", context)

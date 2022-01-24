@@ -2,6 +2,7 @@
 
 {% block content %}
 {% load static %}
+{% get_media_prefix as MEDIA_URL %}
 <link rel="stylesheet" href="{% static 'css/profile.css' %}">
 
 <div class="row">
@@ -9,7 +10,7 @@
   <div class="profile-block">
     <div class="col-sm-5">
       {% if profile %}
-      <img src="{% static profile %}" alt="user profile" class="profile-img">
+      <img src="{{MEDIA_URL}}{{profile}}" alt="user profile" class="profile-img">
       {% else %}
       <p class="glyphicon glyphicon-user profile-icon"></p>
       {% endif %}

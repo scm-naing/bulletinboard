@@ -32,8 +32,13 @@ function goToUserDetail(user) {
     success: function (response) {
       const data = JSON.parse(response);
       let type = data.fields.type === "0" ? 'Admin' : 'User';
-      if (data.fields.profile) $('#user-detail-profile').html("<img src='/static/" + data.fields.profile + "' alt=user profile' class='profile-img'>")
-      else $('#user-detail-profile').html("<p class='glyphicon glyphicon-user profile-icon'></p>")
+      console.log(data.fields.profile)
+      if (data.fields.profile) {
+        $('#user-profile-dialog').attr("src", '/media/' + data.fields.profile)
+      } else {
+        $('#user-detail-profile').html("<p class='glyphicon glyphicon-user profile-icon'></p>")
+        $('#user-profile-dialog').hide()
+      }
       $("#user-name").html(data.fields.name);
       $("#user-type").html(type);
       $("#user-email").html(data.fields.email);
