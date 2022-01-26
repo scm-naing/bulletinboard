@@ -68,9 +68,9 @@ class User(AbstractBaseUser):
     created_user_id = models.IntegerField(default=1)
     updated_user_id = models.IntegerField(default=1)
     delete_user_id = models.IntegerField(null=True, blank=True)
-    created_at = models.DateTimeField(default=timezone.now)
-    updated_at = models.DateTimeField(default=timezone.now)
-    deleted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateField(default=timezone.now)
+    updated_at = models.DateField(default=timezone.now)
+    deleted_at = models.DateField(null=True, blank=True)
 
     is_staff = models.BooleanField(default=True)
     is_superuser = models.BooleanField(default=True)
@@ -111,9 +111,9 @@ class Post(models.Model):
     created_user_id = models.IntegerField()
     updated_user_id = models.IntegerField()
     delete_user_id = models.IntegerField(null=True, blank=True)
-    created_at = models.DateTimeField()
-    updated_at = models.DateTimeField()
-    deleted_at = models.DateTimeField(null=True, blank=True)
+    created_at = models.DateField()
+    updated_at = models.DateField()
+    deleted_at = models.DateField(null=True, blank=True)
 
     class Meta:
         ordering = ["-updated_at"]

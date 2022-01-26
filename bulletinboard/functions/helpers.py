@@ -8,8 +8,6 @@ def save_temp(f):
     Param: Django's form file (type: InMemoryFile)
     return: name of file
     """
-    if not f:
-        return ""
     with open("media/tmp/"+f.name, "wb+") as destination:
         for chunk in f.chunks():
             destination.write(chunk)
@@ -21,8 +19,6 @@ def handle_uploaded_file(fname):
     Upload profile from temp file
     param: file name of temp file
     """
-    if not fname:
-        return ""
     with open("media/tmp/"+fname, "rb") as tmp:
         img_str = tmp.read()
         with open("media/upload/"+fname, "wb+") as upload:
@@ -51,5 +47,3 @@ def check_route(current_route, previousRoute, request):
         else:
             if (splittedRoute[-3] != current_route):
                 request.session["save_confirm_page"] = False
-    else:
-        request.session["save_confirm_page"] = False

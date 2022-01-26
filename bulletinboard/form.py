@@ -199,10 +199,6 @@ class UserEditForm(forms.Form):
             self.add_error("name", "Name can't be blank")
         if not self.cleaned_data.get("email"):
             self.add_error("email", "E-Mail can't be blank")
-        if self.cleaned_data.get("password") and self.cleaned_data.get("passwordConfirm"):
-            if self.cleaned_data.get("password") != self.cleaned_data.get("passwordConfirm"):
-                self.add_error(
-                    None, "password and password confirmation must be match.")
 
 
 class csvForm(forms.Form):
@@ -261,7 +257,7 @@ class passwordResetForm(forms.Form):
 
 class SignUpForm(forms.Form):
     """
-    For create new account form
+    For create 
     """
     name = forms.CharField(
         required=True, label="Name *", widget=forms.TextInput(attrs={"class": "form-control"}))
@@ -272,13 +268,11 @@ class SignUpForm(forms.Form):
     password_confirmation = forms.CharField(
         required=True, label="Password confirmation *", widget=forms.TextInput(attrs={"class": "form-control", "type": "password"}))
 
-    def post(self, request, *args, **kwargs):
+    def clean(self):
         """
-        Create new accout (sign up)
-        Para: form post method
-        Return: render template of signUp form
+        Check for valid new account form
         """
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            return HttpResponseRedirect("/posts")
-        return render(request, self.template_name, {"form": form})
+        if self.cleaned_data.get("password") and self.cleaned_data.get("password_confirmation"):
+            if self.cleaned_data.get("password") != self.cleaned_data.get("password_confirmation"):
+                self.add_error(
+                    None, "password and password confirmation must be match.")

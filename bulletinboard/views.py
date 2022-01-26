@@ -1,6 +1,6 @@
 import csv
+import datetime
 import json
-import os
 from django.contrib.auth import authenticate, login
 from django.contrib import messages
 from django.http.response import HttpResponseRedirect, HttpResponse
@@ -16,6 +16,7 @@ from django.core import serializers
 from .form import PostForm, PostSearchForm, SignUpForm, UserEditForm, UserForm, UserSearchForm, csvForm, passwordResetForm
 from .models import Post, User
 from .functions.helpers import check_route, handle_uploaded_file, remove_temp, save_temp
+
 
 def user_login(request):
     """
@@ -111,7 +112,8 @@ def userList(request):
     for user_data in user_list:
         user_data.type = "Admin" if user_data.type == "0" else "User"
         list_data = User.objects.get(pk=user_data.created_user_id)
-        user_data.created_user = list_data.name if hasattr(list_data, "name") else ""
+        user_data.created_user = list_data.name if hasattr(
+            list_data, "name") else ""
     paginator = Paginator(user_list, 5)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
@@ -402,31 +404,27 @@ def userUpdate(request, pk):
             form = UserEditForm(request.POST, request.FILES)
             if form.is_valid():
                 if request.session.get("save_confirm_page") == True:
-                    try:
-                        image = ""
-                        if request.session.get("updated_image") == True:
-                            handle_uploaded_file(request.session.get("profile"))
-                            image = "upload/"+request.session.get("profile")
-                        else:
-                            image = request.session.get("profile")
-                        user = get_object_or_404(User, pk=request.user.id)
-                        user.name = form.cleaned_data.get("name")
-                        user.email = form.cleaned_data.get("email")
-                        user.type = form.cleaned_data.get("type")
-                        user.phone = form.cleaned_data.get("phone")
-                        user.dob = form.cleaned_data.get("dob")
-                        user.address = form.cleaned_data.get("address")
-                        user.profile = image
-                        user.updated_user_id = user.id
-                        user.updated_at = timezone.now()
-                        user.save()
-                        request.session["save_confirm_page"] = False
-                        if request.session.get("updated_image") == True:
-                            remove_temp(request.session.get("profile"))
-                        return HttpResponseRedirect(reverse("user-list"))
-                    except Exception as error:
-                        request.session["save_confirm_page"] = False
-                        form.add_error(None, str(error))
+                    image = ""
+                    if request.session.get("updated_image") == True:
+                        handle_uploaded_file(request.session.get("profile"))
+                        image = "upload/"+request.session.get("profile")
+                    else:
+                        image = request.session.get("profile")
+                    user = get_object_or_404(User, pk=request.user.id)
+                    user.name = form.cleaned_data.get("name")
+                    user.email = form.cleaned_data.get("email")
+                    user.type = form.cleaned_data.get("type")
+                    user.phone = form.cleaned_data.get("phone")
+                    user.dob = form.cleaned_data.get("dob")
+                    user.address = form.cleaned_data.get("address")
+                    user.profile = image
+                    user.updated_user_id = user.id
+                    user.updated_at = timezone.now()
+                    user.save()
+                    request.session["save_confirm_page"] = False
+                    if request.session.get("updated_image") == True:
+                        remove_temp(request.session.get("profile"))
+                    return HttpResponseRedirect(reverse("user-list"))
                 else:
                     if "profile" in request.FILES:
                         profile = save_temp(request.FILES["profile"])
@@ -434,7 +432,6 @@ def userUpdate(request, pk):
                         tmp_file = "tmp/{}".format(profile)
                     else:
                         request.session["updated_image"] = False
-
                     formData = {
                         "name": form.cleaned_data.get("name"),
                         "email": form.cleaned_data.get("email"),
@@ -622,7 +619,7 @@ def user_password_reset(request):
                 # requirement was go to user list but django will go to login page
                 return HttpResponseRedirect(reverse("user-list"))
             else:
-                reset_form.add_error("password", "Current password is wrong!")
+                reset_form.add_error(None, "Current password is wrong!")
     return render(request, "registration/password-reset.html", {"form": reset_form})
 
 
