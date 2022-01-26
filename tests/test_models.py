@@ -6,7 +6,9 @@ from bulletinboard.models import Post, User
 class UserModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # Set up non-modified objects used by all test methods
+        """
+        Set up non-modified objects used by all test methods
+        """
         User.objects.create(
             name="test",
             email="test@gmail.com",
@@ -23,6 +25,9 @@ class UserModelTest(TestCase):
         )
 
     def test_label(self):
+        """
+        Test for user model labels
+        """
         user = User.objects.get(id=1)
         name_label = user._meta.get_field("name").verbose_name
         email_label = user._meta.get_field("email").verbose_name
@@ -54,6 +59,9 @@ class UserModelTest(TestCase):
         self.assertEqual(d_at_label, "deleted at")
 
     def test_max_length(self):
+        """
+        Test for user model max length
+        """
         user = User.objects.get(id=1)
         name_max = user._meta.get_field("name").max_length
         email_max = user._meta.get_field("email").max_length
@@ -71,6 +79,9 @@ class UserModelTest(TestCase):
         self.assertEqual(address_max, 255)
 
     def test_default(self):
+        """
+        Test user model default value
+        """
         user = User.objects.get(id=1)
         type_default = user._meta.get_field("type").default
         c_user_default = user._meta.get_field("created_user_id").default
@@ -90,11 +101,17 @@ class UserModelTest(TestCase):
         self.assertEqual(is_active_default, True)
 
     def test_user_object_is_email(self):
+        """
+        Test user model return value is email
+        """
         user = User.objects.get(id=1)
         expected_object_name = f'{user.email}'
         self.assertEqual(str(user), expected_object_name)
 
     def test_staff_user_register(self):
+        """
+        Test model with new user create
+        """
         user = User.objects.create_staffuser(
             "staffuser@example.com", "thestaffuser123")
         self.assertEqual(user.staff, True)
@@ -102,6 +119,9 @@ class UserModelTest(TestCase):
         self.assertEqual(user.email, "staffuser@example.com")
 
     def test_create_super_user(self):
+        """
+        Testmodel with new super user create
+        """
         user = User.objects.create_superuser(
             "superuser@example.com", "theSuperUser123")
         self.assertEqual(user.staff, True)
@@ -110,27 +130,37 @@ class UserModelTest(TestCase):
         self.assertEqual(user.email, "superuser@example.com")
 
     def test_user_has_perm(self):
+        """
+        Test user permission
+        """
         user = User.objects.get(id=1)
         has_perm = user.has_perm(None)
         self.assertEqual(has_perm, True)
 
     def test_user_has_module_perms(self):
+        """
+        Test user permission
+        """
         user = User.objects.get(id=1)
         has_module_perms = user.has_module_perms(None)
         self.assertEqual(has_module_perms, True)
 
     def test_user_create_without_mail(self):
+        """
+        Test user create without email and catch error
+        """
         try:
             User.objects.create_user(None, "1234")
         except ValueError:
             pass
 
 
-
 class PostModelTest(TestCase):
     @classmethod
     def setUpTestData(cls):
-        # Set up non-modified objects used by all test methods
+        """
+        Set up non-modified objects used by all test methods
+        """
         Post.objects.create(
             title="test title",
             description="Hello world!!",
@@ -142,6 +172,9 @@ class PostModelTest(TestCase):
         )
 
     def test_post_label(self):
+        """
+        Test post model columns
+        """
         post = Post.objects.get(id=1)
         title_label = post._meta.get_field("title").verbose_name
         des_label = post._meta.get_field("description").verbose_name
@@ -159,6 +192,9 @@ class PostModelTest(TestCase):
         self.assertEqual(u_at_label, "updated at")
 
     def test_post_max_length(self):
+        """
+        Test post model maximun length
+        """
         post = Post.objects.get(id=1)
         title_max = post._meta.get_field("title").max_length
         des_max = post._meta.get_field("description").max_length
@@ -168,11 +204,17 @@ class PostModelTest(TestCase):
         self.assertEqual(status_max, 1)
 
     def test_post_default(self):
+        """
+        Test post model default values
+        """
         post = Post.objects.get(id=1)
         status_default = post._meta.get_field("status").default
         self.assertEqual(status_default, "1")
 
     def test_post_object_is_title(self):
+        """
+        Test model return value is its title
+        """
         post = Post.objects.get(id=1)
         expected_object_name = f'{post.title}'
         self.assertEqual(str(post), expected_object_name)
